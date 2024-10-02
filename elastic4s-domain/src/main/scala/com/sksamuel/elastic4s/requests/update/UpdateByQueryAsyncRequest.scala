@@ -2,6 +2,7 @@ package com.sksamuel.elastic4s.requests.update
 
 import com.sksamuel.elastic4s.Indexes
 import com.sksamuel.elastic4s.ext.OptionImplicits._
+import com.sksamuel.elastic4s.requests.admin.IndicesOptionsRequest
 import com.sksamuel.elastic4s.requests.common.{AutoSlices, NumericSlices, RefreshPolicy, Slice, Slices}
 import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.queries.Query
@@ -24,7 +25,8 @@ case class UpdateByQueryAsyncRequest(indexes: Indexes,
                                      slice: Option[Slice] = None,
                                      timeout: Option[FiniteDuration] = None,
                                      shouldStoreResult: Option[Boolean] = None,
-                                     size: Option[Int] = None) extends BaseUpdateByQueryRequest {
+                                     size: Option[Int] = None,
+                                     indicesOptions: Option[IndicesOptionsRequest] = None) extends BaseUpdateByQueryRequest {
 
   def proceedOnConflicts(proceedOnConflicts: Boolean): UpdateByQueryAsyncRequest =
     copy(proceedOnConflicts = proceedOnConflicts.some)
@@ -63,6 +65,8 @@ case class UpdateByQueryAsyncRequest(indexes: Indexes,
 
   def shouldStoreResult(shouldStoreResult: Boolean): UpdateByQueryAsyncRequest =
     copy(shouldStoreResult = shouldStoreResult.some)
+
+  def indicesOptions(options: IndicesOptionsRequest): UpdateByQueryAsyncRequest = copy(indicesOptions = options.some)
 
   override val waitForCompletion: Option[Boolean] = Some(false)
 }
