@@ -18,9 +18,19 @@ def githubRunNumber = sys.env.getOrElse("GITHUB_RUN_NUMBER", "local")
 val scala2Versions = Seq("2.12.19", "2.13.14")
 val scalaAllVersions = scala2Versions :+ "3.3.3"
 
+lazy val credentialSettings = Seq(
+  credentials := Seq(
+    Credentials(Path.userHome / ".sbt" / ".credentials"),
+    Credentials(Path.userHome / ".sbt" / ".mw_credentials")
+  )
+)
+
+def publishVersion = if (isRelease) releaseVersion else "8.14.0." + "linkfluence"
+
 lazy val commonScalaVersionSettings = Seq(
   scalaVersion := "2.12.19",
-  crossScalaVersions := Nil
+  crossScalaVersions := Nil,
+  version := publishVersion
 )
 
 lazy val warnUnusedImport = Seq(
@@ -40,8 +50,12 @@ lazy val commonSettings = Seq(
 )
 
 lazy val publishSettings = Seq(
-  Test / publishArtifact := false
+  publishMavenStyle := true,
+  Test / publishArtifact := false,
+  pomIncludeRepository := Function.const(false),
+  publishTo := Some("LKF releases" at "https://artifactory.rtgi.eu/artifactory/libs-release-local")
 )
+
 
 lazy val commonJvmSettings = Seq(
    Test / testOptions += {
@@ -87,7 +101,8 @@ lazy val allSettings = commonScalaVersionSettings ++
   commonDeps ++
   pomSettings ++
   warnUnusedImport ++
-  publishSettings
+  publishSettings  ++
+  credentialSettings
 
 lazy val scala2Settings = allSettings :+ (crossScalaVersions := scala2Versions)
 lazy val scala3Settings = allSettings ++ (scalacOptions ++= (if (scalaVersion.value startsWith "3") Seq("-Ytasty-reader") else Nil)) :+ (crossScalaVersions := scalaAllVersions)
